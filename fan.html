@@ -4,7 +4,7 @@ F='Inter,ui-sans-serif,-apple-system,"Segoe UI",Arial,sans-serif';
 function acc(){return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#b7ff35'}
 function fit(t,w,max,min){var s=max;do{x.font='900 '+s+'px '+F;s-=4}while(x.measureText(t).width>w&&s>min);return s}
 function spark(px,py,r,a){x.save();x.globalAlpha=a;x.fillStyle='#fff';x.beginPath();x.moveTo(px,py-r);x.quadraticCurveTo(px,py,px+r,py);x.quadraticCurveTo(px,py,px,py+r);x.quadraticCurveTo(px,py,px-r,py);x.quadraticCurveTo(px,py,px,py-r);x.fill();x.restore()}
-function draw(){var A=acc(),W=1080,H=1920,n=($('nm').value.trim()||'Твоё имя');
+function draw(){var A=acc(),W=1080,H=1920,n=($('nm').value.trim()||'Твое имя');
 x.fillStyle='#0a0a0a';x.fillRect(0,0,W,H);
 var g=x.createRadialGradient(W*.75,H*.18,0,W*.75,H*.18,W*.95);g.addColorStop(0,A+'55');g.addColorStop(1,'#0a0a0a00');x.fillStyle=g;x.fillRect(0,0,W,H);
 var g2=x.createRadialGradient(W*.1,H*.92,0,W*.1,H*.92,W*.8);g2.addColorStop(0,A+'33');g2.addColorStop(1,'#0a0a0a00');x.fillStyle=g2;x.fillRect(0,0,W,H);
