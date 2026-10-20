@@ -1,13 +1,7 @@
 {
   "name": "seville-info",
-  "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
   "assets": {
-    "directory": "./",
-    "binding": "ASSETS"
-  },
-  "durable_objects": {
-    "bindings": [{ "name": "COUNTER", "class_name": "Counter" }]
-  },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Counter"] }]
+    "directory": "./"
+  }
 }
