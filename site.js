@@ -40,3 +40,82 @@
   mobile.addEventListener('change', function () { setOpen(false); });
   setOpen(false);
 })();
+
+/* Tour links activate the same calendar filter as the buttons. */
+(function () {
+  var today = new Date(Date.now() + 3 * 36e5).toISOString().slice(0, 10);
+  var upcomingTour = document.querySelectorAll('.event[data-tour][data-date]');
+  var hasTour = Array.from(upcomingTour).some(function (event) {
+    return event.dataset.date >= today;
+  });
+  var promo = document.getElementById('tour-promo');
+  if (promo) promo.hidden = !promo.dataset.tourUntil || promo.dataset.tourUntil < today;
+
+  var tools = document.getElementById('tour');
+  if (!tools) return;
+  var buttons = Array.from(tools.querySelectorAll('[data-schedule-filter]'));
+  var events = Array.from(document.querySelectorAll('.events .event[data-date]'));
+  var status = document.getElementById('schedule-status');
+  var empty = document.getElementById('no-events');
+  var citySelect = document.getElementById('schedule-city');
+  var filteredEmpty = document.getElementById('schedule-empty');
+  tools.hidden = !hasTour;
+  if (!hasTour) return;
+  var cities = Array.from(new Set(events.map(function (event) { return event.dataset.city; }).filter(Boolean))).sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+  cities.forEach(function (city) {
+    var option = document.createElement('option');
+    option.value = city;
+    option.textContent = city;
+    citySelect.appendChild(option);
+  });
+  var initialCity = new URLSearchParams(location.search).get('city');
+  if (cities.indexOf(initialCity) !== -1) citySelect.value = initialCity;
+
+  function setAddress(hash) {
+    var params = new URLSearchParams(location.search);
+    if (citySelect.value) params.set('city', citySelect.value);
+    else params.delete('city');
+    var search = params.toString();
+    history.replaceState(null, '', location.pathname + (search ? '?' + search : '') + hash);
+  }
+
+  function applyFilter() {
+    var onlyTour = location.hash === '#tour' && hasTour;
+    var city = citySelect.value;
+    var visible = events.filter(function (event) {
+      var show = event.dataset.date >= today && (!onlyTour || event.hasAttribute('data-tour')) && (!city || event.dataset.city === city);
+      event.hidden = !show;
+      event.classList.remove('next');
+      var badge = event.querySelector('.badge');
+      if (badge) badge.remove();
+      return show;
+    });
+    buttons.forEach(function (button) {
+      button.setAttribute('aria-pressed', String((button.dataset.scheduleFilter === 'tour') === onlyTour));
+    });
+    if (status) status.textContent = (onlyTour ? 'Концерты тура' : 'Все выступления') + (city ? ' · ' + city : '') + ' · Найдено: ' + visible.length;
+    if (empty) empty.hidden = events.length > 0;
+    if (filteredEmpty) filteredEmpty.hidden = visible.length > 0;
+    if (visible.length) {
+      visible[0].classList.add('next');
+      var heading = visible[0].querySelector('h3');
+      var badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = onlyTour ? 'Ближайший в туре' : 'Ближайший';
+      heading.parentNode.insertBefore(badge, heading);
+    }
+  }
+  buttons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var hash = button.dataset.scheduleFilter === 'tour' ? '#tour' : '';
+      setAddress(hash);
+      applyFilter();
+    });
+  });
+  citySelect.addEventListener('change', function () {
+    setAddress(location.hash === '#tour' ? '#tour' : '');
+    applyFilter();
+  });
+  window.addEventListener('hashchange', applyFilter);
+  applyFilter();
+})();
